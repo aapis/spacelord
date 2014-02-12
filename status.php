@@ -1,10 +1,13 @@
 <?php
-	/**
-	 * TODO:
-	 * - implement geckoboard/ducksboard formatting
-	 */
+	
 	namespace SpaceLord;
 
+	/**
+	 * Status
+	 * 
+	 * Sends HEAD requests to a site, or list of sites, and returns status 
+	 * information (i.e. website is down, website is behind basic auth, etc)
+	 */
 	class Status {
 		/**
 		 * The URL you want to test

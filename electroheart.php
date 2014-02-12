@@ -1,8 +1,9 @@
 <?php
-	defined("BASEPATH") or die;
+	
+	namespace SpaceLord;
 
 	/**
-	 * Electroheart - mcrypt for your Codeigniterz
+	 * Electroheart
 	 *
 	 * To use this outside of Codeigniter, roll your own self::_generateKey 
 	 * method (CI functions are used to generate some random strings there)
@@ -112,7 +113,7 @@
 		 * @return string
 		 */
 		private function _generateKey($length = 32){
-			$_tmp = array(random_string("encrypt", $length), random_string("encrypt", $length));
+			$_tmp = substr(str_shuffle("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 1).substr(md5(time()),1);
 			$pool = implode("", $_tmp);
 			$ret = $pool;
 
