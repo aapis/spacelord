@@ -1,6 +1,6 @@
 <?php
 	
-	namespace SpaceLord;
+	namespace SpaceLord\Status;
 
 	/**
 	 * Status
