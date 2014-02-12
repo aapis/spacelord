@@ -5,8 +5,7 @@
 	/**
 	 * Electroheart
 	 *
-	 * To use this outside of Codeigniter, roll your own self::_generateKey 
-	 * method (CI functions are used to generate some random strings there)
+	 * Wrapper for MCRYPT encryption functions
 	 */
 	class Electroheart {
 		/**
