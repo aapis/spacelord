@@ -33,10 +33,9 @@
 		 * @var array
 		 */
 		private $_predefined_sites = array(
-			"http://aksis.ca",
-			"http://aroscalgary2014.ca",
-			"http://emeraldfoundation.ca",
-			"http://robynbraun.wearefree.ca",
+			"http://google.com",
+			"http://apple.com",
+			"http://microsoft.com",
 			);
 
 		/**
