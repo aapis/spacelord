@@ -172,7 +172,10 @@
 			if($dir == "DESC"){
 				usort($this->_bucket, function($a, $b){
 					if(is_object($a) && is_object($b)){
-						return $a->{$this->_key} - $b->{$this->_key};
+						if(property_exists($a, $this->_key) && property_exists($b, $this->_key))
+							return $a->{$this->_key} - $b->{$this->_key};
+
+						return 0;
 					}
 
 					return $a[$this->_key] - $b[$this->_key];
@@ -180,7 +183,10 @@
 			}elseif($dir == "ASC"){
 				usort($this->_bucket, function($a, $b){
 					if(is_object($a) && is_object($b)){
-						return $a->{$this->_key} - $b->{$this->_key} * -1;
+						if(property_exists($a, $this->_key) && property_exists($b, $this->_key))
+							return $a->{$this->_key} - $b->{$this->_key} * -1;
+
+						return 0;
 					}
 
 					return $a[$this->_key] - $b[$this->_key] * -1;
