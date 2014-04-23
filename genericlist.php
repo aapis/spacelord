@@ -13,11 +13,18 @@
 		 * @var array
 		 */
 		private $_bucket = array();
+		
 		/**
 		 * Type of the array (associative|numeric)
 		 * @var string
 		 */
 		private $_type = null;
+
+		/**
+		 * Number of elements in the _bucket
+		 * @var integer
+		 */
+		public $length = 0;
 
 		/**
 		 * Create the list and add default elements to it if required
@@ -28,6 +35,8 @@
 
 			if(is_array($source) && sizeof($source) > 0){
 				$this->_bucket = $source;
+
+				$this->length = sizeof($source);
 			}
 
 			return $this;
@@ -92,12 +101,65 @@
 		 * @param  string $default A default value to return if the key value does not exist
 		 * @return string
 		 */
-		public function get($key, $default = null){
+		public function indexOf($key, $default = null){
 			if(isset($this->_bucket[$key])){
 				return $this->_bucket[$key];
 			}
 
 			return $default;
+		}
+
+		/**
+		 * Returns a value in the array, if an element in the array satisfies 
+		 * the provided testing function. Otherwise a default is returned.
+		 * @param  string $value   The value you want to locate within _bucket
+		 * @param  mixed  $default A default value to return
+		 * @return mixed
+		 */
+		public function find($value, $default = null){
+			$match = null;
+
+			for($i = 0; $i < $this->length; $i++){
+				if(is_object($this->_bucket[$i]) || is_array($this->_bucket[$i])){
+					foreach($this->_bucket[$i] as $key => $_item){
+						if($key == $value || $_item == $value){
+							$match = $this->_bucket[$i];
+						}
+					}
+				}else {
+					if($value == $this->_bucket[$i]){
+						$match = $this->_bucket[$i];
+					}
+				}
+			}
+
+			if(false === is_null($match)){
+				return $match;
+			}
+
+			return $default;
+		}
+
+		/**
+		 * Get the key values of the _bucket list
+		 * @return array
+		 */
+		public function keys(){
+			$keys = array();
+
+			foreach($this->_bucket as $key => $value){
+				$keys[] = $key;
+			}
+
+			return $keys;
+		}
+
+		/**
+		 * Sort the _bucket list
+		 * @return [type] [description]
+		 */
+		public function sort(){
+			return false;
 		}
 
 		/**
@@ -109,7 +171,17 @@
 		}
 
 		/**
+		 * String representation of the array
+		 * TODO: implement recursive stringification
+		 * @return string
+		 */
+		public function toString(){
+			return implode($this->_bucket, ",");
+		}
+
+		/**
 		 * Short hand for method to loop through GenericList items
+		 * TODO: implement a counter to pass to callback
 		 * @param  function $callback      A function to call which handles data within the loop
 		 * @param  array   $out_of_scopes  A list of objects which should be added to the local scope
 		 * @return mixed
@@ -118,16 +190,19 @@
 			try {
 				if(is_callable($callback)){
 					$oos = new GenericList($out_of_scopes);
+					$counter = 1;
 
 					switch($this->_type){
 						case "numeric":
 							for($i = 0; $i < sizeof($this->_bucket); $i++){
+								$oos->push($counter++);
 								$callback($i, $this->_bucket[$i], $oos);
 							}
 						break;
 
 						case "associative":
 							foreach($this->_bucket as $item){
+								$oos->push($counter++);
 								$callback($item, $oos);
 							}
 						break;
