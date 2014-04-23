@@ -21,6 +21,12 @@
 		private $_type = null;
 
 		/**
+		 * Used in GenericList::sort to get around usort scope issue
+		 * @var string
+		 */
+		private $_key = null;
+
+		/**
 		 * Number of elements in the _bucket
 		 * @var integer
 		 */
@@ -142,24 +148,35 @@
 
 		/**
 		 * Get the key values of the _bucket list
+		 * @param  string $filter  Only get keys whose values equal this
 		 * @return array
 		 */
-		public function keys(){
-			$keys = array();
+		public function keys($filter = null){
+			if(false === is_null($filter))
+				return array_keys($this->_bucket, $filter);
 
-			foreach($this->_bucket as $key => $value){
-				$keys[] = $key;
-			}
-
-			return $keys;
+			return array_keys($this->_bucket);
 		}
 
 		/**
-		 * Sort the _bucket list
-		 * @return [type] [description]
+		 * Sort the _bucket list by KEY
+		 * TODO: implement sorting direction
+		 * @param string $key  Key value to sort the array by
+		 * @return array
 		 */
-		public function sort(){
-			return false;
+		public function sort($key){
+			//hack to get around scoping issue
+			$this->_key = $key;
+
+			usort($this->_bucket, function($a, $b){
+				if(is_object($a) && is_object($b)){
+					return $a->{$this->_key} - $b->{$this->_key};
+				}
+
+				return $a[$this->_key] - $b[$this->_key];
+			});
+
+			return $this->_bucket;
 		}
 
 		/**
