@@ -160,21 +160,32 @@
 
 		/**
 		 * Sort the _bucket list by KEY
-		 * TODO: implement sorting direction
 		 * @param string $key  Key value to sort the array by
+		 * @param string $dir  Sorting direction
 		 * @return array
 		 */
-		public function sort($key){
+		public function sort($key, $dir = "DESC"){
 			//hack to get around scoping issue
 			$this->_key = $key;
+			$dir = strtoupper($dir);
 
-			usort($this->_bucket, function($a, $b){
-				if(is_object($a) && is_object($b)){
-					return $a->{$this->_key} - $b->{$this->_key};
-				}
+			if($dir == "DESC"){
+				usort($this->_bucket, function($a, $b){
+					if(is_object($a) && is_object($b)){
+						return $a->{$this->_key} - $b->{$this->_key};
+					}
 
-				return $a[$this->_key] - $b[$this->_key];
-			});
+					return $a[$this->_key] - $b[$this->_key];
+				});
+			}elseif($dir == "ASC"){
+				usort($this->_bucket, function($a, $b){
+					if(is_object($a) && is_object($b)){
+						return $a->{$this->_key} - $b->{$this->_key} * -1;
+					}
+
+					return $a[$this->_key] - $b[$this->_key] * -1;
+				});
+			}
 
 			return $this->_bucket;
 		}
