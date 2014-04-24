@@ -102,6 +102,35 @@
 		}
 
 		/**
+		 * Prepend items to the beginning of _bucket
+		 * Note: Does NOT preserve keys
+		 * @param  mixed $args  String|Array, items you want to prepend to the list
+		 * @return array
+		 */
+		public function unshift($args){
+			$diff = array_unshift($this->_bucket, $args);
+
+			//size of array changes, modify length property accordingly
+			$this->length = ($this->length - $diff);
+
+			return $this->_bucket;
+		}
+
+		/**
+		 * Append items to the end of _bucket
+		 * Note: Does NOT preserve keys
+		 * @return array
+		 */
+		public function shift(){
+			array_shift($this->_bucket);
+
+			//size of array changes, modify length property accordingly
+			$this->length++;
+
+			return $this->_bucket;
+		}
+
+		/**
 		 * Returns a specific item by key
 		 * @param  string $key     The key whose value you want to return
 		 * @param  string $default A default value to return if the key value does not exist
