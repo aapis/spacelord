@@ -45,11 +45,9 @@
 		public function get($key = null, $default = null){
 			$ret = $default;
 
-			if(false === $this->hasError){
-				if(false === is_null($key)){
-					if(isset($this->$key)){
-						$ret = $this->$key;
-					}
+			if(false === is_null($key)){
+				if(isset($this->$key)){
+					$ret = $this->$key;
 				}
 			}
 
