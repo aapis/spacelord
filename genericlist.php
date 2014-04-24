@@ -235,11 +235,10 @@
 
 		/**
 		 * String representation of the array
-		 * TODO: implement recursive stringification
 		 * @return string
 		 */
 		public function toString(){
-			return implode($this->_bucket, ",");
+			return serialize($this->_bucket);
 		}
 
 		/**
