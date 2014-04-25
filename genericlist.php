@@ -90,22 +90,24 @@
 
 		/**
 		 * Remove an item from the list by key
+		 * Supports chaining
 		 * @param  string $key Key value for the item you want to delete
-		 * @return array
+		 * @return GenericList object
 		 */
 		public function pop($key){
 			if(isset($this->_bucket[$key])){
 				unset($this->_bucket[$key]);
 			}
 
-			return $this->_bucket;
+			return $this;
 		}
 
 		/**
 		 * Prepend items to the beginning of _bucket
+		 * Supports chaining
 		 * Note: Does NOT preserve keys
 		 * @param  mixed $args  String|Array, items you want to prepend to the list
-		 * @return array
+		 * @return GenericList object
 		 */
 		public function unshift($args){
 			$diff = array_unshift($this->_bucket, $args);
@@ -113,13 +115,14 @@
 			//size of array changes, modify length property accordingly
 			$this->length = ($this->length - $diff);
 
-			return $this->_bucket;
+			return $this;
 		}
 
 		/**
 		 * Append items to the end of _bucket
+		 * Supports chaining
 		 * Note: Does NOT preserve keys
-		 * @return array
+		 * @return GenericList object
 		 */
 		public function shift(){
 			array_shift($this->_bucket);
@@ -127,7 +130,7 @@
 			//size of array changes, modify length property accordingly
 			$this->length++;
 
-			return $this->_bucket;
+			return $this;
 		}
 
 		/**
@@ -142,6 +145,48 @@
 			}
 
 			return $default;
+		}
+
+		/**
+		 * Modify an existing _bucket list item by key
+		 * @param  mixed $key   Key value of the item you would like to manipulate
+		 * @param  mixed $value The value you would like to assign
+		 * @return bool
+		 */
+		public function modify($key, $value){
+			if(array_key_exists($key, $this->_bucket)){
+				return ($this->_bucket[$key] = $value);
+			}
+
+			return false;
+		}
+
+		/**
+		 * Limit the _bucket list to a specific length (similar to SQL LIMIT #)
+		 * Supports chaining
+		 * @param  integer $size Final length of the list
+		 * @return GenericList object
+		 */
+		public function limit($size = 10){
+			$_tmp = array();
+
+			//using an index-agnostic loop to get around some index issues
+			//when using $size = 1
+			$counter = 1;
+			foreach($this->_bucket as $key => $item){
+				if($counter <= (int) $size){
+					$_tmp[$key] = $item;
+				}
+
+				$counter++;
+			}
+
+			if(sizeof($_tmp) > 0){
+				$this->_bucket = $_tmp;
+				$this->length = sizeof($_tmp);
+			}
+
+			return $this;
 		}
 
 		/**
@@ -189,40 +234,44 @@
 
 		/**
 		 * Sort the _bucket list by KEY
+		 * Returns an entirely new GenericList object by design, the problem was
+		 * that running multiple sort()'s in a row caused subsequent results to
+		 * be sorted according to each previous call's criteria
 		 * @param string $key  Key value to sort the array by
 		 * @param string $dir  Sorting direction
-		 * @return array
+		 * @return GenericList object
 		 */
 		public function sort($key, $dir = "DESC"){
 			//hack to get around scoping issue
 			$this->_key = $key;
 			$dir = strtoupper($dir);
+			$clone = $this->_bucket;
 
 			if($dir == "DESC"){
-				usort($this->_bucket, function($a, $b){
+				usort($clone, function($a, $b){
 					if(is_object($a) && is_object($b)){
 						if(property_exists($a, $this->_key) && property_exists($b, $this->_key))
-							return $a->{$this->_key} - $b->{$this->_key};
+							return ($a->{$this->_key} - $b->{$this->_key} > 0);
 
-						return 0;
+						return false;
 					}
 
 					return $a[$this->_key] - $b[$this->_key];
 				});
 			}elseif($dir == "ASC"){
-				usort($this->_bucket, function($a, $b){
+				usort($clone, function($a, $b){
 					if(is_object($a) && is_object($b)){
 						if(property_exists($a, $this->_key) && property_exists($b, $this->_key))
-							return $a->{$this->_key} - $b->{$this->_key} * -1;
+							return ($a->{$this->_key} - $b->{$this->_key} < 0);
 
-						return 0;
+						return false;
 					}
 
 					return $a[$this->_key] - $b[$this->_key] * -1;
 				});
 			}
 
-			return $this->_bucket;
+			return new GenericList($clone);
 		}
 
 		/**
@@ -230,6 +279,10 @@
 		 * @return array
 		 */
 		public function dump(){
+			if($this->length === 1){
+				return $this->_bucket[0];
+			}
+
 			return $this->_bucket;
 		}
 
@@ -244,11 +297,12 @@
 		/**
 		 * Short hand for method to loop through GenericList items
 		 * TODO: implement a counter to pass to callback
-		 * @param  function $callback      A function to call which handles data within the loop
+		 * @param  function $callback       A function to call which handles data within the loop
 		 * @param  array    $out_of_scopes  A list of objects which should be added to the local scope
+		 * @param  bool     $return         Return the value of $callback
 		 * @return mixed
 		 */
-		public function each($callback, $out_of_scopes = array()){
+		public function each($callback, $out_of_scopes = array(), $return = false){
 			try {
 				if(is_callable($callback)){
 					$oos = new GenericList($out_of_scopes);
@@ -261,14 +315,26 @@
 								//do not
 								$oos->push($index++);
 
-								$callback($item, $oos);
+								if(false === is_null($item)){
+									if($return){
+										return $callback($item, $oos);
+									}else {
+										$callback($item, $oos);
+									}
+								}
 							}
 						break;
 						
 						default:
 						case "numeric":
 							for($i = 0; $i < sizeof($this->_bucket); $i++){
-								$callback($i, $this->_bucket[$i], $oos);
+								if(false === is_null($this->_bucket[$i])){
+									if($return){
+										return $callback($i, $this->_bucket[$i], $oos);
+									}else {
+										$callback($i, $this->_bucket[$i], $oos);
+									}
+								}
 							}
 						break;
 					}
@@ -283,7 +349,6 @@
 
 			return false;
 		}
-	}
 	}
 
 ?>
