@@ -22,9 +22,10 @@
 
 		/**
 		 * Used in GenericList::sort to get around usort scope issue
+		 * PUBLIC because of PHP 5.3, don't ask
 		 * @var string
 		 */
-		private $_key = null;
+		public $_key = null;
 
 		/**
 		 * Number of elements in the _bucket
@@ -246,12 +247,13 @@
 			$this->_key = $key;
 			$dir = strtoupper($dir);
 			$clone = $this->_bucket;
+			$ref = $this;
 
 			if($dir == "DESC"){
-				usort($clone, function($a, $b){
+				usort($clone, function($a, $b) use ($ref) {
 					if(is_object($a) && is_object($b)){
-						if(property_exists($a, $this->_key) && property_exists($b, $this->_key))
-							return ($a->{$this->_key} - $b->{$this->_key} > 0);
+						if(property_exists($a, $ref->_key) && property_exists($b, $ref->_key))
+							return ($a->{$ref->_key} - $b->{$ref->_key} > 0);
 
 						return false;
 					}
@@ -259,10 +261,10 @@
 					return $a[$this->_key] - $b[$this->_key];
 				});
 			}elseif($dir == "ASC"){
-				usort($clone, function($a, $b){
+				usort($clone, function($a, $b) use($ref) {
 					if(is_object($a) && is_object($b)){
-						if(property_exists($a, $this->_key) && property_exists($b, $this->_key))
-							return ($a->{$this->_key} - $b->{$this->_key} < 0);
+						if(property_exists($a, $ref->_key) && property_exists($b, $ref->_key))
+							return ($a->{$ref->_key} - $b->{$ref->_key} < 0);
 
 						return false;
 					}
