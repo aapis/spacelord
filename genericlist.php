@@ -297,6 +297,15 @@
 		}
 
 		/**
+		 * Join all elements together into a string
+		 * @param  string $symbol The symbol or character you want to join each element with
+		 * @return string
+		 */
+		public function join($symbol){
+			return implode($symbol, $this->_bucket);
+		}
+
+		/**
 		 * Short hand for method to loop through GenericList items
 		 * TODO: implement a counter to pass to callback
 		 * @param  function $callback       A function to call which handles data within the loop
