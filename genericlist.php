@@ -301,7 +301,17 @@
 		 * @param  string $symbol The symbol or character you want to join each element with
 		 * @return string
 		 */
-		public function join($symbol){
+		public function join($symbol, $ignore_spaces = false){
+			if($ignore_spaces && sizeof($this->_bucket) > 0){
+				$_tmp = array();
+
+				foreach($this->_bucket as $item){
+					$_tmp[] = str_replace(" ", "", $item);
+				}
+
+				$this->_bucket = $_tmp;
+			}
+
 			return implode($symbol, $this->_bucket);
 		}
 
