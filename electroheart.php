@@ -1,6 +1,6 @@
 <?php
 	
-	namespace SpaceLord\Electroheart;
+	namespace SpaceLord;
 
 	/**
 	 * Electroheart

@@ -1,6 +1,6 @@
 <?php
 	
-	namespace SpaceLord\Generic;
+	namespace SpaceLord;
 
 	/**
 	 * Generic 
