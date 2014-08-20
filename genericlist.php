@@ -12,7 +12,7 @@
 		 * Stores list data
 		 * @var array
 		 */
-		private $_bucket = array();
+		protected $_bucket = array();
 		
 		/**
 		 * Type of the array (associative|numeric)
