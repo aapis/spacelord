@@ -86,6 +86,8 @@
 				$this->_bucket[] = $item;
 			}
 
+			$this->length++;
+
 			return $item;
 		}
 
@@ -99,6 +101,8 @@
 			if(isset($this->_bucket[$key])){
 				unset($this->_bucket[$key]);
 			}
+
+			$this->length--;
 
 			return $this;
 		}
